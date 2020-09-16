@@ -21,7 +21,8 @@ type Service interface {
 }
 
 type service struct {
-	repository Repository
+	repository   Repository
+	restUserRepo RestUsersRepository
 }
 
 //NewService func
@@ -44,11 +45,19 @@ func (s *service) GetByID(accessTokenID string) (*AccessToken, *errors.RestErr) 
 	return accessToken, nil
 }
 
-func (s *service) Create(at AccessToken) *errors.RestErr {
-	if err := at.Validate(); err != nil {
-		return err
+func (s *service) Create(request AccessTokenRequest) (*AccessToken, *errors.RestErr) {
+	if err := request.Validate(); err != nil {
+		return nil, err
 	}
-	return s.repository.Create(at)
+	//TODO: Support both grant types: client_credentials and password
+	//Authenticate against the Users API
+	user, err := s.restUserRepo.LoginUser(request.Username, request.Password)
+	if err != nil {
+		return nil, err
+	}
+	//Generate a new access token
+	at := GetNewAccessToken()
+	at.
 }
 func (s *service) UpdateExpirationTime(at AccessToken) *errors.RestErr {
 	if err := at.Validate(); err != nil {
