@@ -1,9 +1,11 @@
 package accesstoken
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/dung997bn/bookstore_oauth_api/src/utils/cryptoutils"
 	"github.com/dung997bn/bookstore_oauth_api/src/utils/errors"
 )
 
@@ -16,6 +18,7 @@ const (
 //AccessTokenRequest type
 type AccessTokenRequest struct {
 	GrantType string `json:"grant_type"`
+
 	//Used for password grant_type
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -67,8 +70,9 @@ func (at *AccessToken) Validate() *errors.RestErr {
 }
 
 //GetNewAccessToken func
-func GetNewAccessToken() *AccessToken {
-	return &AccessToken{
+func GetNewAccessToken(userID int64) AccessToken {
+	return AccessToken{
+		UserID:  userID,
 		Expires: time.Now().UTC().Add(expirationTime * time.Hour).Unix(),
 	}
 }
@@ -77,4 +81,9 @@ func GetNewAccessToken() *AccessToken {
 func (at *AccessToken) IsExpired() bool {
 	now := time.Now().UTC()
 	return time.Unix(at.Expires, 0).Before(now)
+}
+
+//Generate func
+func (at *AccessToken) Generate() {
+	at.AccessToken = cryptoutils.GetMd5(fmt.Sprintf("at-%d-%d-ran", at.UserID, at.Expires))
 }

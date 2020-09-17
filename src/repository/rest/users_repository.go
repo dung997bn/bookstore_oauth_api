@@ -24,8 +24,8 @@ type RestUsersRepository interface {
 
 type usersRepository struct{}
 
-//NewRepository func
-func NewRepository() RestUsersRepository {
+//NewRestUsersRepository func
+func NewRestUsersRepository() RestUsersRepository {
 	return &usersRepository{}
 }
 

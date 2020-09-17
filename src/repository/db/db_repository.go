@@ -22,8 +22,8 @@ type DbRepository interface {
 type dbRepository struct {
 }
 
-//New func
-func New() DbRepository {
+//NewDbRepository func
+func NewDbRepository() DbRepository {
 	return &dbRepository{}
 }
 
@@ -40,12 +40,10 @@ func (db *dbRepository) GetByID(id string) (*accesstoken.AccessToken, *errors.Re
 	if err := cassandra.GetSession().Query(queryGetAccessToken, id).Scan(&result.AccessToken, &result.ClientID, &result.UserID, &result.Expires); err != nil {
 		return nil, errors.NewInternalServerError(err.Error())
 	}
-
 	return &result, nil
 }
 
 func (db *dbRepository) Create(ac accesstoken.AccessToken) *errors.RestErr {
-
 	if err := cassandra.GetSession().Query(queryCreateAccessToken, ac.AccessToken, ac.ClientID, ac.UserID, ac.Expires).Exec(); err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
@@ -53,7 +51,6 @@ func (db *dbRepository) Create(ac accesstoken.AccessToken) *errors.RestErr {
 }
 
 func (db *dbRepository) UpdateExpirationTime(ac accesstoken.AccessToken) *errors.RestErr {
-
 	if err := cassandra.GetSession().Query(queryUpdateExpires, ac.Expires, ac.AccessToken).Exec(); err != nil {
 		return errors.NewInternalServerError(err.Error())
 	}
