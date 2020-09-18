@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dung997bn/bookstore_oauth_api/src/utils/cryptoutils"
-	"github.com/dung997bn/bookstore_oauth_api/src/utils/errors"
+	"github.com/dung997bn/bookstore_utils-go/resterrors"
 )
 
 const (
@@ -31,14 +31,14 @@ type AccessTokenRequest struct {
 }
 
 //Validate func
-func (at *AccessTokenRequest) Validate() *errors.RestErr {
+func (at *AccessTokenRequest) Validate() *resterrors.RestErr {
 	switch at.GrantType {
 	case grantTypePassword:
 		break
 	case grandTypeClientCredentials:
 		break
 	default:
-		return errors.NewBadRequestError("Invalid grant type parameter")
+		return resterrors.NewBadRequestError("Invalid grant type parameter")
 	}
 	return nil
 }
@@ -52,19 +52,19 @@ type AccessToken struct {
 }
 
 //Validate func
-func (at *AccessToken) Validate() *errors.RestErr {
+func (at *AccessToken) Validate() *resterrors.RestErr {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
 	if at.AccessToken == "" {
-		return errors.NewBadRequestError("Invalid token id")
+		return resterrors.NewBadRequestError("Invalid token id")
 	}
 	if at.UserID <= 0 {
-		return errors.NewBadRequestError("Invalid user id")
+		return resterrors.NewBadRequestError("Invalid user id")
 	}
 	if at.ClientID <= 0 {
-		return errors.NewBadRequestError("Invalid client id")
+		return resterrors.NewBadRequestError("Invalid client id")
 	}
 	if at.Expires <= 0 {
-		return errors.NewBadRequestError("Invalid expriration time")
+		return resterrors.NewBadRequestError("Invalid expriration time")
 	}
 	return nil
 }

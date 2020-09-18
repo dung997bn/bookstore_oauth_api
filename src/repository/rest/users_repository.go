@@ -2,11 +2,12 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/dung997bn/bookstore_oauth_api/src/domain/users"
-	"github.com/dung997bn/bookstore_oauth_api/src/utils/errors"
+	"github.com/dung997bn/bookstore_utils-go/resterrors"
 	"github.com/mercadolibre/golang-restclient/rest"
 )
 
@@ -19,7 +20,7 @@ var (
 
 //RestUsersRepository interface
 type RestUsersRepository interface {
-	LoginUser(string, string) (*users.User, *errors.RestErr)
+	LoginUser(string, string) (*users.User, *resterrors.RestErr)
 }
 
 type usersRepository struct{}
@@ -29,7 +30,7 @@ func NewRestUsersRepository() RestUsersRepository {
 	return &usersRepository{}
 }
 
-func (r *usersRepository) LoginUser(email string, password string) (*users.User, *errors.RestErr) {
+func (r *usersRepository) LoginUser(email string, password string) (*users.User, *resterrors.RestErr) {
 	requestBody := users.UserLoginRequest{
 		Email:    email,
 		Password: password,
@@ -40,21 +41,21 @@ func (r *usersRepository) LoginUser(email string, password string) (*users.User,
 
 	response := usersRestClient.Post("/users/login", requestBody)
 	if response == nil || response.Response == nil {
-		return nil, errors.NewInternalServerError("Invalid restclient response when trying to login user")
+		return nil, resterrors.NewInternalServerError("Invalid restclient response when trying to login user", errors.New("server error"))
 	}
 
 	if response.StatusCode > 299 {
-		var restErr errors.RestErr
+		var restErr resterrors.RestErr
 		err := json.Unmarshal(response.Bytes(), &restErr)
 		if err != nil {
-			return nil, errors.NewInternalServerError("Invalid error interface when trying to login user")
+			return nil, resterrors.NewInternalServerError("Invalid error interface when trying to login user", errors.New("server error"))
 		}
 		return nil, &restErr
 	}
 
 	var user users.User
 	if err := json.Unmarshal(response.Bytes(), &user); err != nil {
-		return nil, errors.NewInternalServerError("error when trying unmarshal users response")
+		return nil, resterrors.NewInternalServerError("error when trying unmarshal users response", errors.New("server error"))
 	}
 	return &user, nil
 }
