@@ -13,7 +13,7 @@ import (
 
 var (
 	usersRestClient = rest.RequestBuilder{
-		BaseURL: "https://bookstore.com/users/login",
+		BaseURL: "http://127.0.0.1:8081",
 		Timeout: 100 * time.Millisecond,
 	}
 )
@@ -48,6 +48,7 @@ func (r *usersRepository) LoginUser(email string, password string) (*users.User,
 		var restErr resterrors.RestErr
 		err := json.Unmarshal(response.Bytes(), &restErr)
 		if err != nil {
+			fmt.Println(err)
 			return nil, resterrors.NewInternalServerError("Invalid error interface when trying to login user", errors.New("server error"))
 		}
 		return nil, &restErr
