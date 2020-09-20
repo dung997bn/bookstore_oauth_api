@@ -31,7 +31,7 @@ type AccessTokenRequest struct {
 }
 
 //Validate func
-func (at *AccessTokenRequest) Validate() *resterrors.RestErr {
+func (at *AccessTokenRequest) Validate() resterrors.RestErr {
 	switch at.GrantType {
 	case grantTypePassword:
 		break
@@ -52,7 +52,7 @@ type AccessToken struct {
 }
 
 //Validate func
-func (at *AccessToken) Validate() *resterrors.RestErr {
+func (at *AccessToken) Validate() resterrors.RestErr {
 	at.AccessToken = strings.TrimSpace(at.AccessToken)
 	if at.AccessToken == "" {
 		return resterrors.NewBadRequestError("Invalid token id")

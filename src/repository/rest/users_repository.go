@@ -20,7 +20,7 @@ var (
 
 //RestUsersRepository interface
 type RestUsersRepository interface {
-	LoginUser(string, string) (*users.User, *resterrors.RestErr)
+	LoginUser(string, string) (*users.User, resterrors.RestErr)
 }
 
 type usersRepository struct{}
@@ -30,7 +30,7 @@ func NewRestUsersRepository() RestUsersRepository {
 	return &usersRepository{}
 }
 
-func (r *usersRepository) LoginUser(email string, password string) (*users.User, *resterrors.RestErr) {
+func (r *usersRepository) LoginUser(email string, password string) (*users.User, resterrors.RestErr) {
 	requestBody := users.UserLoginRequest{
 		Email:    email,
 		Password: password,
@@ -45,13 +45,12 @@ func (r *usersRepository) LoginUser(email string, password string) (*users.User,
 	}
 
 	if response.StatusCode > 299 {
-		var restErr resterrors.RestErr
-		err := json.Unmarshal(response.Bytes(), &restErr)
+		apiErr, err := resterrors.NewRestErrorFromBytes(response.Bytes())
 		if err != nil {
 			fmt.Println(err)
 			return nil, resterrors.NewInternalServerError("Invalid error interface when trying to login user", errors.New("server error"))
 		}
-		return nil, &restErr
+		return nil, apiErr
 	}
 
 	var user users.User
